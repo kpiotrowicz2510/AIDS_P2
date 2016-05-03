@@ -7,7 +7,7 @@
 using namespace std;
 
 struct elewator {
-	unsigned long int masa;
+	long int masa;
 	unsigned long int numer;
 	int priority;
 	bool operator < (const elewator& org) {
@@ -135,10 +135,7 @@ void MinHeap::Heapify()
 	zero_count = 0;
 	for (int i = length - 1; i >= 0; --i)
 	{
-		if (_vector[i].masa == 0) {
-			zero_count++;
-			//swap(_vector[i], _vector[_vector.size()-1]);
-		}
+		
 		
 		BubbleDown(i);
 		//cout << "t:" << tablica[i] << endl;
@@ -150,17 +147,47 @@ void MinHeap::Heapify()
 void MinHeap::BubbleDown(int index)
 {
 	int length = _vector.size();
+	int parentIndex = (index - 1) / 2;
 	int leftChildIndex = 2 * index;
 	int rightChildIndex = 2 * index + 1;
 
-	if (leftChildIndex >= length) {
+	if (leftChildIndex >= length|| rightChildIndex>=length) {
 		return; //index is a leaf
 	}
-
-	if (_vector[index].masa == 0) {
-		swap(_vector[index], _vector[_vector.size() - 1]);
-	}
-
+	//if (_vector[parentIndex].masa == 0) {
+	//	if (_vector[parentIndex].masa == 0 && _vector[index].masa > _vector[parentIndex].masa) {
+	//		swap(_vector[index], _vector[parentIndex]);
+	//		swap(tablica[index], tablica[parentIndex]);
+	//		swap(tablica_n_v[_vector[index].numer], tablica_n_v[_vector[parentIndex].numer]);
+	//		//return;
+	//	}
+	//	if ((leftChildIndex < length) && _vector[index].masa < _vector[leftChildIndex].masa) {
+	//		swap(_vector[index], _vector[leftChildIndex]);
+	//		swap(tablica[index], tablica[leftChildIndex]);
+	//		swap(tablica_n_v[_vector[index].numer], tablica_n_v[_vector[leftChildIndex].numer]);
+	//		//return;
+	//	}
+	//	if ((rightChildIndex < length) && _vector[index].masa < _vector[rightChildIndex].masa) {
+	//		swap(_vector[index], _vector[rightChildIndex]);
+	//		swap(tablica[index], tablica[rightChildIndex]);
+	//		swap(tablica_n_v[_vector[index].numer], tablica_n_v[_vector[rightChildIndex].numer]);
+	//		//return;
+	//	}
+	//	if (_vector[index].masa == 0) {
+	//		swap(_vector[index], _vector[_vector.size() - 1]);
+	//		swap(tablica[index], tablica[_vector.size() - 1]);
+	//		swap(tablica_n_v[_vector[index].numer], tablica_n_v[_vector.size() - 1]);
+	//		//return;
+	//	}
+	//}
+	//else {
+	//	if (_vector[index].masa == 0) {
+	//		swap(_vector[index], _vector[_vector.size() - 1]);
+	//		swap(tablica[index], tablica[_vector.size() - 1]);
+	//		swap(tablica_n_v[_vector[index].numer], tablica_n_v[_vector.size() - 1]);
+	//		//return;
+	//	}
+	//}
 	int minIndex = index;
 
 	if (_vector[index] > _vector[leftChildIndex])
@@ -180,21 +207,26 @@ void MinHeap::BubbleDown(int index)
 
 		if (temp.masa == 0) {
 			swap(_vector[index], _vector[_vector.size() - 1]);
+			swap(tablica[index], tablica[minIndex]);
+			swap(tablica_n_v[_vector[index].numer], tablica_n_v[_vector[minIndex].numer]);
+			return;
 		}
 
-		int temp3 = tablica[index];
-		int temp2 = index;
+		//int temp3 = tablica[index];
+		//int temp2 = index;
 
-		_vector[index] = _vector[minIndex];
-		tablica[index] = _vector[minIndex].numer;
-		tablica_n_v[_vector[index].numer] = minIndex;
+		//_vector[index] = _vector[minIndex];
+		//tablica[index] = _vector[minIndex].numer;
+		//tablica_n_v[_vector[index].numer] = minIndex;
+		swap(_vector[index],_vector[minIndex]);
+		swap(tablica[index], tablica[minIndex]);
+		swap(tablica_n_v[_vector[index].numer], tablica_n_v[_vector[minIndex].numer]);
 
 
-
-		_vector[minIndex] = temp;
-		tablica[minIndex] = temp3;
+		//_vector[minIndex] = temp;
+		//tablica[minIndex] = temp3;
 		//tablica_n_v[minIndex] = index;
-		tablica_n_v[_vector[minIndex].numer] = index;
+		//tablica_n_v[_vector[minIndex].numer] = index;
 		BubbleDown(minIndex);
 	}
 }
@@ -227,7 +259,7 @@ void MinHeap::BubbleUp(int index)
 
 		for (int i = 0; i < _vector.size(); i++)
 		{
-			cout << i << ":" << _vector[i].masa << "\t" << tablica[i] << "\t" << tablica_n_v[i] << endl;
+			//cout << i << ":" << _vector[i].masa << "\t" << tablica[i] << "\t" << tablica_n_v[i] << endl;
 		}
 
 		BubbleUp(parentIndex);
@@ -238,11 +270,18 @@ void MinHeap::Insert(int index, int masa)
 {
 	int length = _vector.size()-1;
 
-	cout << endl << "AA" << endl << tablica[index] << endl;
+	//cout << endl << "AA" << endl << tablica[index] << endl;
 
 	_vector[index].masa += masa;
-
+	if (_vector[index].masa < 0) {
+		_vector[index].masa = 0;
+		BubbleUp(index);
+	}
 	BubbleDown(index);
+	for (int i = 0; i < _vector.size(); i++)
+	{
+		cout << i << ":" <<_vector[i].masa << "\t" <<tablica[i] << "\t" << tablica_n_v[i] << endl;
+	}
 	//BubbleDown(tablica[index]);
 	//Heapify();
 }
@@ -250,7 +289,7 @@ void MinHeap::Insert(int index, int masa)
 elewator MinHeap::GetMin()
 {
 	//for(int i = 0;i<_vector.size();i++){
-	return _vector[0];
+	return _vector[tablica[0]];
 }
 
 int MinHeap::GetMinI()
@@ -262,6 +301,7 @@ int MinHeap::GetMinI()
 int MinHeap::GetMaxI()
 {
 	int id = 0;
+	return id;
 	elewator max = _vector[0];
 	for (size_t i = 0; i < _vector.size(); i++)
 	{
@@ -276,10 +316,10 @@ int MinHeap::GetMaxI()
 elewator MinHeap::GetMax()
 {
 	elewator max = _vector[0];
-
+	return max;
 	for (size_t i = 0; i < _vector.size(); i++)
 	{
-		if (_vector[i] > max) {
+		if (_vector[i].masa > max.masa) {
 			max = _vector[i];
 		}
 	}
@@ -302,31 +342,31 @@ void MinHeap::DeleteMin()
 }
 
 void MinHeap::nX(int numer, long int masa) {
-	
+	Insert(tablica[numer], masa);
 }
 void MinHeap::nm(long int masa) {
-
+	Insert(GetMinI(), masa);
 }
 void MinHeap::nM(long int masa) {
-
+	Insert(GetMaxI(), masa);
 }
 void MinHeap::r(int numer, long int masa) {
-	
+	Insert(tablica_n_v[numer], -masa);
 }
 void MinHeap::rm(long int masa) {
-
+	Insert(GetMinI(), -masa);
 }
 void MinHeap::rM(long int masa) {
-
+	Insert(GetMaxI(), -masa);
 }
 void MinHeap::w(int numer) {
-
+	cout << _vector[tablica[numer]].masa << endl;
 }
 void MinHeap::wm() {
-
+	cout << GetMin().masa << endl;
 }
 void MinHeap::wM() {
-	
+	cout << GetMax().masa << endl;
 }
 
 
@@ -356,24 +396,103 @@ int main()
 
 
 	MinHeap minHeap(elewatory, n);
-	cout << minHeap.GetMin().masa << "  ";
-	cout << minHeap.GetMax().masa << "  ";
-	cout << endl;
+	//cout << minHeap.GetMin().masa << "  ";
+	//cout << minHeap.GetMax().masa << "  ";
+	//cout << endl;
 	for (int i = 0; i < n; i++)
 	{
 		cout << i << ":" << minHeap._vector[i].masa << "\t" << minHeap.tablica[i] << "\t" << minHeap.tablica_n_v[i] << endl;
 	}
-	cout << endl << endl;
-	minHeap.Insert(minHeap.GetMaxI(), 5);
-	cout << minHeap.GetMin().masa << "  ";
-	cout << minHeap.GetMax().masa << "  ";
-	cout << endl;
+	//cout << endl << endl;
+	//minHeap.Insert(minHeap.GetMaxI(), 5);
+	//cout << minHeap.GetMin().masa << "  ";
+	//cout << minHeap.GetMax().masa << "  ";
+	//cout << endl;
 	for (int i = 0; i < n; i++)
 	{
-		cout << i << ":" << minHeap._vector[i].masa << "\t" << minHeap.tablica[i] << "\t" << minHeap.tablica_n_v[i] << endl;
+		//cout << i << ":" << minHeap._vector[i].masa << "\t" << minHeap.tablica[i] << "\t" << minHeap.tablica_n_v[i] << endl;
 	}
-	char x;
-	std::cin >> x;
+
+	for (int ix = 0; ix <= m; ix++) {
+		char ht1[100];
+		unsigned int numer;
+		unsigned long int masa;
+		fgets(ht1, 100, stdin);
+		//cout << ht1;
+		//continue;
+		if (ht1[0] == 'n') {
+			if (ht1[1] == 'm') {
+				token = strtok(ht1, " ");
+				token = strtok(NULL, " ");
+				masa = atoi(token);
+				//cin >> masa;
+				minHeap.nm(masa);
+			}
+			else {
+				if (ht1[1] == 'M') {
+					token = strtok(ht1, " ");
+					token = strtok(NULL, " ");
+					masa = atoi(token);
+					minHeap.nM(masa);
+				}
+				else {
+					token = strtok(ht1, " ");
+					token = strtok(NULL, " ");
+					numer = atoi(token);
+					//cin >> numer;
+					token = strtok(NULL, " ");
+					masa = atoi(token);
+					//cin >> masa;
+					minHeap.nX(numer, masa);
+				}
+			}
+		}
+		if (ht1[0] == 'r') {
+			if (ht1[1] == 'm') {
+				token = strtok(ht1, " ");
+				token = strtok(NULL, " ");
+				masa = atoi(token);
+				minHeap.rm(masa);
+			}
+			else {
+				if (ht1[1] == 'M') {
+					token = strtok(ht1, " ");
+					token = strtok(NULL, " ");
+					masa = atoi(token);
+					minHeap.rM(masa);
+				}
+				else {
+					token = strtok(ht1, " ");
+					token = strtok(NULL, " ");
+					numer = atoi(token);
+					//cin >> numer;
+					token = strtok(NULL, " ");
+					masa = atoi(token);
+					minHeap.r(numer, masa);
+				}
+			}
+		}
+		if (ht1[0] == 'w') {
+			if (ht1[1] == 'm') {
+				minHeap.wm();
+			}
+			else {
+				if (ht1[1] == 'M') {
+					minHeap.wM();
+				}
+				else {
+					token = strtok(ht1, " ");
+					token = strtok(NULL, " ");
+					numer = atoi(token);
+					minHeap.w(numer);
+				}
+			}
+		}
+
+		//k->elewatory_S = k->elewatory;
+		//k->elewatory_S.erase(k->elewatory_S.begin(), low);
+	}
+	
 
     return 0;
 }
