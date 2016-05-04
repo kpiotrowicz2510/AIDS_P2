@@ -1,7 +1,5 @@
 // AIDS_P2.cpp : Defines the entry point for the console application.
 //
-
-#include "stdafx.h"
 #include "vector"
 #include <iostream>
 using namespace std;
@@ -94,6 +92,8 @@ public:
 	void wm();
 	void wM();
 	vector<elewator> _vector;
+	int max_id;
+	int max_masa;
 };
 
 MinHeap::MinHeap(elewator* array, int length) : _vector(length)
@@ -101,6 +101,7 @@ MinHeap::MinHeap(elewator* array, int length) : _vector(length)
 	zero_count = 0;
 	tablica = new int[length];
 	tablica_n_v = new int[length];
+	max_id = 0;
 	for (int i = 0; i < length; ++i)
 	{
 		_vector[i] = array[i];
@@ -109,15 +110,16 @@ MinHeap::MinHeap(elewator* array, int length) : _vector(length)
 		tablica_n_v[_vector[i].numer] = i;
 		//tablica[i] = array[i].numer;
 	}
-
 	Heapify();
-
 	for (int i = 0; i < length; ++i)
 	{
-		//_vector[i] = array[i];
-		
-		//tablica_n_v[_vector[i].numer] = i;
+		if (_vector[i].masa > max_masa) {
+			max_id = i;
+			max_masa = _vector[i].masa;
+		}
 	}
+	
+
 }
 
 MinHeap::MinHeap(const vector<elewator>& vector) : _vector(vector)
@@ -153,6 +155,18 @@ void MinHeap::BubbleDown(int index)
 
 	if (leftChildIndex >= length) {
 		return; //index is a leaf
+	}
+	if (_vector[index].masa > _vector[max_id].masa) {
+		max_id = index;
+		max_masa = _vector[index].masa;
+	}
+	if (_vector[leftChildIndex].masa > _vector[max_id].masa) {
+		max_id = leftChildIndex;
+		max_masa = _vector[leftChildIndex].masa;
+	}
+	if ((rightChildIndex < length) && _vector[rightChildIndex].masa > _vector[max_id].masa) {
+		max_id = rightChildIndex;
+		max_masa = _vector[rightChildIndex].masa;
 	}
 	if (_vector[parentIndex].masa == 0) {
 		if (_vector[parentIndex].masa == 0 && _vector[index].masa > _vector[parentIndex].masa) {
@@ -235,7 +249,9 @@ void MinHeap::BubbleUp(int index)
 {
 	if (index == 0)
 		return;
-
+	if (_vector[index].masa > _vector[max_id].masa) {
+	//	max_id = index;
+	}
 	int parentIndex = (index -1) / 2;
 	int leftChildIndex = 2*index ;
 	int rightChildIndex = 2* index + 1;
@@ -257,10 +273,6 @@ void MinHeap::BubbleUp(int index)
 		tablica[parentIndex] = temp3;
 		tablica_n_v[parentIndex] = index;
 
-		for (int i = 0; i < _vector.size(); i++)
-		{
-			//cout << i << ":" << _vector[i].masa << "\t" << tablica[i] << "\t" << tablica_n_v[i] << endl;
-		}
 
 		BubbleUp(parentIndex);
 	}
@@ -276,6 +288,7 @@ void MinHeap::Insert(int index, int masa)
 	if (_vector[index].masa < 0) {
 		_vector[index].masa = 0;
 		BubbleUp(index);
+		return;
 	}
 	BubbleDown(index);
 	for (int i = 0; i < _vector.size(); i++)
@@ -301,7 +314,7 @@ int MinHeap::GetMinI()
 int MinHeap::GetMaxI()
 {
 	int id = 0;
-	//return id;
+	return max_id;
 	elewator max = _vector[0];
 	for (size_t i = 0; i < _vector.size(); i++)
 	{
@@ -316,7 +329,7 @@ int MinHeap::GetMaxI()
 elewator MinHeap::GetMax()
 {
 	elewator max = _vector[0];
-	//return max;
+	return _vector[max_id];
 	for (size_t i = 0; i < _vector.size(); i++)
 	{
 		if (_vector[i].masa > max.masa) {
@@ -342,7 +355,7 @@ void MinHeap::DeleteMin()
 }
 
 void MinHeap::nX(int numer, long int masa) {
-	Insert(tablica[numer], masa);
+	Insert(tablica_n_v[numer], masa);
 }
 void MinHeap::nm(long int masa) {
 	Insert(GetMinI(), masa);
@@ -399,19 +412,19 @@ int main()
 	//cout << minHeap.GetMin().masa << "  ";
 	//cout << minHeap.GetMax().masa << "  ";
 	//cout << endl;
-	for (int i = 0; i < n; i++)
-	{
-		cout << i << ":" << minHeap._vector[i].masa << "\t" << minHeap.tablica[i] << "\t" << minHeap.tablica_n_v[i] << endl;
-	}
+	//for (int i = 0; i < n; i++)
+	//{
+	//	cout << i << ":" << minHeap._vector[i].masa << "\t" << minHeap.tablica[i] << "\t" << minHeap.tablica_n_v[i] << endl;
+	//}
 	//cout << endl << endl;
 	//minHeap.Insert(minHeap.GetMaxI(), 5);
 	//cout << minHeap.GetMin().masa << "  ";
 	//cout << minHeap.GetMax().masa << "  ";
 	//cout << endl;
-	for (int i = 0; i < n; i++)
-	{
-		//cout << i << ":" << minHeap._vector[i].masa << "\t" << minHeap.tablica[i] << "\t" << minHeap.tablica_n_v[i] << endl;
-	}
+	//for (int i = 0; i < n; i++)
+	//{
+	//	//cout << i << ":" << minHeap._vector[i].masa << "\t" << minHeap.tablica[i] << "\t" << minHeap.tablica_n_v[i] << endl;
+	//}
 
 	for (int ix = 0; ix <= m; ix++) {
 		char ht1[100];
