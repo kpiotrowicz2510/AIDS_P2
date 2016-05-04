@@ -148,11 +148,20 @@ void MinHeap::Heapify()
 
 void MinHeap::BubbleDown(int index)
 {
+	for (int i = 0; i < _vector.size(); i++)
+	{
+		cout << i << ":" << _vector[i].masa << "\t" << tablica[i] << "\t" << tablica_n_v[i] << endl;
+	}
 	int length = _vector.size();
 	int parentIndex = (index - 1) / 2;
 	int leftChildIndex = 2 * index;
 	int rightChildIndex = 2 * index + 1;
-
+	if (_vector[0].masa == 0&& _vector[_vector.size() - 1].masa!=0) {
+		swap(_vector[0], _vector[_vector.size() - 1]);
+		swap(tablica[0], tablica[_vector.size() - 1]);
+		swap(tablica_n_v[tablica[0]], tablica_n_v[tablica[_vector.size() - 1]]);
+		BubbleDown(0);
+	}
 	if (leftChildIndex >= length) {
 		return; //index is a leaf
 	}
@@ -190,7 +199,7 @@ void MinHeap::BubbleDown(int index)
 		if (_vector[index].masa == 0) {
 			swap(_vector[index], _vector[_vector.size() - 1]);
 			swap(tablica[index], tablica[_vector.size() - 1]);
-			swap(tablica_n_v[tablica[index]], tablica_n_v[_vector.size() - 1]);
+			swap(tablica_n_v[tablica[index]], tablica_n_v[tablica[_vector.size() - 1]]);
 			return;
 		}
 	}
@@ -219,12 +228,12 @@ void MinHeap::BubbleDown(int index)
 		//need to swap
 		elewator temp = _vector[index];
 
-		if (temp.masa == 0) {
-			swap(_vector[index], _vector[_vector.size() - 1]);
-			swap(tablica[index], tablica[_vector.size() - 1]);
-			//swap(tablica_n_v[tablica[rightChildIndex]], tablica_n_v[_vector[_vector.size() - 1].numer]);
-			return;
-		}
+		//if (temp.masa == 0) {
+		//	swap(_vector[index], _vector[_vector.size() - 1]);
+		//	swap(tablica[index], tablica[_vector.size() - 1]);
+		//	swap(tablica_n_v[tablica[rightChildIndex]], tablica_n_v[_vector[_vector.size() - 1].numer]);
+		//	return;
+		//}
 
 		//int temp3 = tablica[index];
 		//int temp2 = index;
@@ -234,8 +243,8 @@ void MinHeap::BubbleDown(int index)
 		//tablica_n_v[_vector[index].numer] = minIndex;
 		swap(_vector[index],_vector[minIndex]);
 		swap(tablica[index], tablica[minIndex]);
-		swap(tablica_n_v[_vector[index].numer], tablica_n_v[_vector[minIndex].numer]);
-
+		swap(tablica_n_v[tablica[index]], tablica_n_v[tablica[minIndex]]);
+		//cout << "X" << endl;
 
 		//_vector[minIndex] = temp;
 		//tablica[minIndex] = temp3;
@@ -287,14 +296,11 @@ void MinHeap::Insert(int index, int masa)
 	_vector[index].masa += masa;
 	if (_vector[index].masa < 0) {
 		_vector[index].masa = 0;
-		BubbleUp(index);
+		BubbleDown(index);
 		return;
 	}
 	BubbleDown(index);
-	for (int i = 0; i < _vector.size(); i++)
-	{
-		cout << i << ":" <<_vector[i].masa << "\t" <<tablica[i] << "\t" << tablica_n_v[i] << endl;
-	}
+	
 	//BubbleDown(tablica[index]);
 	//Heapify();
 }
@@ -308,7 +314,7 @@ elewator MinHeap::GetMin()
 int MinHeap::GetMinI()
 {
 	//for(int i = 0;i<_vector.size();i++){
-	return 0;
+	return tablica[0];
 }
 
 int MinHeap::GetMaxI()
