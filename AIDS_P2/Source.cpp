@@ -37,13 +37,15 @@ struct elewator {
 elewator ** minHeap;
 elewator ** maxHeap;
 elewator * elewatory;
+int g_size = 0;
 
 void GoDown(int index, int size) {
-	int leftIndex = 2 * index + 1;
-	if (leftIndex >= size) {
+	if (index <= 0) {
 		return;
 	}
-	int rightIndex = 2 * index + 2;
+	int leftIndex = index - 1;
+
+	int rightIndex = index - 1;
 	int minIndex = index;
 	
 	if ((*minHeap[index]).masa > (*minHeap[leftIndex]).masa) {
@@ -62,17 +64,44 @@ void GoDown(int index, int size) {
 			minIndex = rightIndex;
 		}
 	}
-	if ((*minHeap[index]).masa == 0) {
+
+	if ((*minHeap[0]).masa == 0) {
 		minIndex = size - 1;
+		swap((*minHeap[0]).posMin, (*minHeap[minIndex]).posMin);
+		swap(minHeap[0], minHeap[minIndex]);
+		GoDown(0, size);
+		return;
 	}
 	if (minIndex != index) {
-		(*minHeap[index]).posMin = minIndex;
-		(*minHeap[minIndex]).posMin = index;
+		swap((*minHeap[index]).posMin, (*minHeap[minIndex]).posMin);
 		swap(minHeap[index], minHeap[minIndex]);
 		GoDown(minIndex,size);
 	}
 }
 void GoUp(int index) {
+	if (index == 0)
+		return;
+
+	int parentIndex = index - 1;
+
+	//if ((*minHeap[parentIndex]) > (*minHeap[index]))
+	//{
+	//	swap((*minHeap[index]).posMin, (*minHeap[parentIndex]).posMin);
+	//	swap(minHeap[index], minHeap[parentIndex]);
+	//	GoUp(parentIndex);
+	//}
+	if ((*maxHeap[index]).masa == 0) {
+		int minIndex = g_size - 1;
+		swap((*maxHeap[index]).posMax, (*maxHeap[minIndex]).posMax);
+		swap(maxHeap[index], maxHeap[minIndex]);
+		return;
+	}
+	if ((*maxHeap[parentIndex]) > (*maxHeap[index]))
+	{
+		swap((*maxHeap[index]).posMax, (*maxHeap[parentIndex]).posMax);
+		swap(maxHeap[index], maxHeap[parentIndex]);
+		GoUp(parentIndex);
+	}
 
 }
 
@@ -84,12 +113,12 @@ int main()
 	cin >> n;
 	cin >> m;
 	char *token;
-
+	g_size = n;
 	elewatory = new elewator[n];
 	minHeap = new elewator*[n*n];
 	maxHeap = new elewator*[n*n];
 
-	for (size_t i = 0; i < n; i++)
+	for (size_t i = 0; i < n*n; i++)
 	{
 		minHeap[i] = new elewator();
 		maxHeap[i] = new elewator();
@@ -107,13 +136,14 @@ int main()
 		minHeap[i] = &elewatory[i];
 		maxHeap[i] = &elewatory[i];
 	}
-	for (size_t i = 0; i < n; i++)
+	for (size_t i = n-1; i > 0; i--)
 	{
 		GoDown(i, n);
+		GoUp(i);
 	}
 	for (int i = 0; i < n; i++)
 	{
-		cout << i << ":" << (*minHeap[i]).masa << "\t m " << (*minHeap[i]).posMin << "\t M" << (*minHeap[i]).posMax << endl;
+		cout << i << ":" << elewatory[i].masa << "\t m " << elewatory[i].posMin << "\t M" << elewatory[i].posMax << endl;
 	}
 	return 0;
 }
