@@ -7,7 +7,7 @@ using namespace std;
 struct elewator {
 	long int masa;
 	unsigned long int numer;
-	int priority;
+	int posMin;
 	bool operator < (const elewator& org) {
 		if (masa == 0) { return false; }
 		if (org.masa == 0) { return true; }
@@ -27,36 +27,36 @@ struct elewator {
 vector<elewator> heap;
 int* tablica;
 int* tablica_n_v;
-void GoDown(int index) {
+void GoDownd(int index) {
 	int length = heap.size();
 	if (index >= length) { return; }
 	int leftChildIndex = 2 * index;
 	int rightChildIndex = 2 * index + 1;
 
-	if ((leftChildIndex < length)&&heap[leftChildIndex] < heap[index]) {
+	if ((leftChildIndex < length) && heap[leftChildIndex] < heap[index]) {
 		swap(heap[leftChildIndex], heap[index]);
-		GoDown(index);
+		//GoDown(index);
 	}
-	if ((rightChildIndex < length)&&heap[rightChildIndex] < heap[index]) {
+	if ((rightChildIndex < length) && heap[rightChildIndex] < heap[index]) {
 		swap(heap[rightChildIndex], heap[index]);
-		GoDown(index);
+		//GoDown(index);
 
 	}
 }
-void GoUp(int index) {
+void GoUpd(int index) {
 
 }
 void make_h(elewator* arr, int length) {
 	tablica = new int[length];
 	tablica_n_v = new int[length];
-	
+
 	for (int i = 0; i < length; ++i)
 	{
 		heap.push_back(arr[i]);
 	}
 	for (int i = length; i > 0; i--)
 	{
-		GoDown(i);
+		//GoDown(i);
 	}
 }
 
@@ -66,6 +66,7 @@ class MinHeap
 {
 private:
 	void BubbleDown(int index);
+		void BubbleDow(int index);
 	void BubbleUp(int index);
 	void Heapify();
 	int zero_count;
@@ -92,19 +93,24 @@ public:
 	void wm();
 	void wM();
 	vector<elewator> _vector;
+	vector<elewator> _vector_max;
+	elewator* array_el;
 	int max_id;
 	int max_masa;
 };
 
-MinHeap::MinHeap(elewator* array, int length) : _vector(length)
+MinHeap::MinHeap(elewator* array, int length) : _vector(length), _vector_max(length)
 {
 	zero_count = 0;
 	tablica = new int[length];
 	tablica_n_v = new int[length];
 	max_id = 0;
+	array_el = array;
 	for (int i = 0; i < length; ++i)
 	{
 		_vector[i] = array[i];
+		array_el[i].posMin = i;
+		_vector_max[i] = array[i];
 		//_vector[i] = array[i];
 		tablica[i] = _vector[i].numer;
 		tablica_n_v[_vector[i].numer] = i;
@@ -118,7 +124,7 @@ MinHeap::MinHeap(elewator* array, int length) : _vector(length)
 			max_masa = _vector[i].masa;
 		}
 	}
-	
+
 
 }
 
@@ -137,46 +143,196 @@ void MinHeap::Heapify()
 	zero_count = 0;
 	for (int i = length - 1; i >= 0; --i)
 	{
-		
-		
+
+		BubbleUp(i);
 		BubbleDown(i);
 		//cout << "t:" << tablica[i] << endl;
 		//cout << "t2:" << tablica_n_v[i] << endl;
 	}
-	
+	int x = 0;
 }
+void MinHeap::BubbleDow(int index) {
+	int length = _vector.size();
+	int leftChildIndex = 2 * index + 1;
+	int rightChildIndex = 2 * index + 2;
 
+	if (leftChildIndex >= length)
+		return; //index is a leaf
+
+	int minIndex = index;
+
+	if (_vector[index] > _vector[leftChildIndex])
+	{
+		minIndex = leftChildIndex;
+	}
+
+	if ((rightChildIndex < length) && (_vector[minIndex] > _vector[rightChildIndex]))
+	{
+		minIndex = rightChildIndex;
+	}
+	if (_vector[index].masa == 0) {
+		minIndex = _vector.size() - 1;
+	}
+
+	if (minIndex != index)
+	{
+		swap(_vector[minIndex], _vector[index]);
+		
+		BubbleDown(minIndex);
+	}
+}
 void MinHeap::BubbleDown(int index)
 {
-	for (int i = 0; i < _vector.size(); i++)
-	{
-		cout << i << ":" << _vector[i].masa << "\t" << tablica[i] << "\t" << tablica_n_v[i] << endl;
-	}
+	//for (int i = 0; i < _vector.size(); i++)
+	//{
+	//      cout << i << ":" << _vector[i].masa << "\t" << tablica[i] << "\t" << tablica_n_v[i] << endl;
+	//}
 	int length = _vector.size();
 	int parentIndex = (index - 1) / 2;
-	int leftChildIndex = 2 * index;
-	int rightChildIndex = 2 * index + 1;
-	if (_vector[0].masa == 0&& _vector[_vector.size() - 1].masa!=0) {
+	int leftChildIndex = 2 * index +1;
+	int rightChildIndex = 2 * index + 2;
+	if (_vector[0].masa == 0 && _vector[_vector.size() - 1].masa != 0) {
+		swap(_vector[0], _vector[_vector.size() - 1]);
+		swap(tablica[0], tablica[_vector.size() - 1]);
+		array_el[tablica_n_v[0]].posMin = _vector.size() - 1;
+		swap(tablica_n_v[0], tablica_n_v[_vector.size() - 1]);
+		array_el[tablica_n_v[0]].posMin = _vector.size() - 1;
+		BubbleDown(0);
+	}
+
+	if (_vector[index].masa > _vector[max_id].masa) {
+		max_id = index;
+		max_masa = _vector[index].masa;
+	}
+
+	if (leftChildIndex >= length) {
+		return; //index is a leaf
+	}
+	
+	
+	if (_vector[parentIndex].masa == 0) {
+		if (_vector[parentIndex].masa == 0 && _vector[index].masa > _vector[parentIndex].masa) {
+			swap(_vector[index], _vector[parentIndex]);
+			swap(tablica[index], tablica[parentIndex]);
+			array_el[tablica_n_v[index]].posMin = parentIndex;
+			swap(tablica_n_v[index], tablica_n_v[parentIndex]);
+			array_el[tablica_n_v[parentIndex]].posMin = index;
+			return;
+		}
+		if ((leftChildIndex < length) && _vector[index].masa < _vector[leftChildIndex].masa) {
+			swap(_vector[index], _vector[leftChildIndex]);
+			swap(tablica[index], tablica[leftChildIndex]);
+			swap(tablica_n_v[index], tablica_n_v[leftChildIndex]);
+			return;
+		}
+		if ((rightChildIndex < length) && _vector[index].masa < _vector[rightChildIndex].masa) {
+			swap(_vector[index], _vector[rightChildIndex]);
+			swap(tablica[index], tablica[rightChildIndex]);
+			swap(tablica_n_v[index], tablica_n_v[rightChildIndex]);
+			return;
+		}
+		if (_vector[index].masa == _vector[parentIndex].masa && _vector[parentIndex].numer < _vector[index].numer) {
+			swap(_vector[index], _vector[parentIndex]);
+			swap(tablica[index], tablica[parentIndex]);
+			swap(tablica_n_v[index], tablica_n_v[parentIndex]);
+			//return;
+		}
+		if (_vector[index].masa == _vector[leftChildIndex].masa && _vector[leftChildIndex].numer > _vector[index].numer) {
+			swap(_vector[index], _vector[leftChildIndex]);
+			swap(tablica[index], tablica[leftChildIndex]);
+			swap(tablica_n_v[index], tablica_n_v[leftChildIndex]);
+			//return;
+		}
+		if (_vector[index].masa == _vector[rightChildIndex].masa && _vector[rightChildIndex].numer > _vector[index].numer) {
+			swap(_vector[index], _vector[rightChildIndex]);
+			swap(tablica[index], tablica[rightChildIndex]);
+			swap(tablica_n_v[index], tablica_n_v[rightChildIndex]);
+			//return;
+		}
+		if (_vector[index].masa == 0) {
+			swap(_vector[index], _vector[_vector.size() - 1]);
+			swap(tablica[index], tablica[_vector.size() - 1]);
+			swap(tablica_n_v[index], tablica_n_v[_vector.size() - 1]);
+			return;
+		}
+	}
+	else {
+		if (_vector[index].masa == 0) {
+			swap(_vector[index], _vector[_vector.size() - 1]);
+			swap(tablica[index], tablica[_vector.size() - 1]);
+			swap(tablica_n_v[index], tablica_n_v[_vector.size() - 1]);
+			return;
+		}
+	}
+	int minIndex = index;
+
+	if (_vector[index] > _vector[leftChildIndex])
+	{
+		minIndex = leftChildIndex;
+	}
+
+	if ((rightChildIndex < length) && (_vector[minIndex] > _vector[rightChildIndex]))
+	{
+		minIndex = rightChildIndex;
+	}
+
+	if (minIndex != index)
+	{
+		//need to swap
+		elewator temp = _vector[index];
+
+		//if (temp.masa == 0) {
+		//      swap(_vector[index], _vector[_vector.size() - 1]);
+		//      swap(tablica[index], tablica[_vector.size() - 1]);
+		//      swap(tablica_n_v[tablica[rightChildIndex]], tablica_n_v[_vector[_vector.size() - 1].numer]);
+		//      return;
+		//}
+
+		//int temp3 = tablica[index];
+		//int temp2 = index;
+
+		//_vector[index] = _vector[minIndex];
+		//tablica[index] = _vector[minIndex].numer;
+		//tablica_n_v[_vector[index].numer] = minIndex;
+		swap(_vector[index], _vector[minIndex]);
+		swap(tablica[index], tablica[minIndex]);
+		
+		swap(tablica_n_v[tablica[index]], tablica_n_v[tablica[minIndex]]);
+		array_el[tablica_n_v[index]].posMin = minIndex;
+		//array_el[tablica_n_v[minIndex]].posMin = index;
+		//cout << "X" << endl;
+
+		//_vector[minIndex] = temp;
+		//tablica[minIndex] = temp3;
+		//tablica_n_v[minIndex] = index;
+		//tablica_n_v[_vector[minIndex].numer] = index;
+		BubbleDown(minIndex);
+	}
+}
+
+void MinHeap::BubbleUp(int index)
+{
+	int length = _vector.size();
+	int parentIndex = (index - 1) / 2;
+	int leftChildIndex = 2 * index + 1;
+	int rightChildIndex = 2 * index + 2;
+	if (_vector[0].masa == 0 && _vector[_vector.size() - 1].masa != 0) {
 		swap(_vector[0], _vector[_vector.size() - 1]);
 		swap(tablica[0], tablica[_vector.size() - 1]);
 		swap(tablica_n_v[tablica[0]], tablica_n_v[tablica[_vector.size() - 1]]);
 		BubbleDown(0);
 	}
-	if (leftChildIndex >= length) {
-		return; //index is a leaf
-	}
+
 	if (_vector[index].masa > _vector[max_id].masa) {
 		max_id = index;
 		max_masa = _vector[index].masa;
 	}
-	if (_vector[leftChildIndex].masa > _vector[max_id].masa) {
-		max_id = leftChildIndex;
-		max_masa = _vector[leftChildIndex].masa;
+
+	if (leftChildIndex >= length) {
+		return; //index is a leaf
 	}
-	if ((rightChildIndex < length) && _vector[rightChildIndex].masa > _vector[max_id].masa) {
-		max_id = rightChildIndex;
-		max_masa = _vector[rightChildIndex].masa;
-	}
+
+
 	if (_vector[parentIndex].masa == 0) {
 		if (_vector[parentIndex].masa == 0 && _vector[index].masa > _vector[parentIndex].masa) {
 			swap(_vector[index], _vector[parentIndex]);
@@ -195,6 +351,24 @@ void MinHeap::BubbleDown(int index)
 			swap(tablica[index], tablica[rightChildIndex]);
 			swap(tablica_n_v[tablica[index]], tablica_n_v[tablica[rightChildIndex]]);
 			return;
+		}
+		if (_vector[index].masa == _vector[parentIndex].masa && _vector[parentIndex].numer < _vector[index].numer) {
+			swap(_vector[index], _vector[parentIndex]);
+			swap(tablica[index], tablica[parentIndex]);
+			swap(tablica_n_v[tablica[index]], tablica_n_v[tablica[parentIndex]]);
+			//return;
+		}
+		if (_vector[index].masa == _vector[leftChildIndex].masa && _vector[leftChildIndex].numer > _vector[index].numer) {
+			swap(_vector[index], _vector[leftChildIndex]);
+			swap(tablica[index], tablica[leftChildIndex]);
+			swap(tablica_n_v[tablica[index]], tablica_n_v[tablica[leftChildIndex]]);
+			//return;
+		}
+		if (_vector[index].masa == _vector[rightChildIndex].masa && _vector[rightChildIndex].numer > _vector[index].numer) {
+			swap(_vector[index], _vector[rightChildIndex]);
+			swap(tablica[index], tablica[rightChildIndex]);
+			swap(tablica_n_v[tablica[index]], tablica_n_v[tablica[rightChildIndex]]);
+			//return;
 		}
 		if (_vector[index].masa == 0) {
 			swap(_vector[index], _vector[_vector.size() - 1]);
@@ -229,10 +403,10 @@ void MinHeap::BubbleDown(int index)
 		elewator temp = _vector[index];
 
 		//if (temp.masa == 0) {
-		//	swap(_vector[index], _vector[_vector.size() - 1]);
-		//	swap(tablica[index], tablica[_vector.size() - 1]);
-		//	swap(tablica_n_v[tablica[rightChildIndex]], tablica_n_v[_vector[_vector.size() - 1].numer]);
-		//	return;
+		//      swap(_vector[index], _vector[_vector.size() - 1]);
+		//      swap(tablica[index], tablica[_vector.size() - 1]);
+		//      swap(tablica_n_v[tablica[rightChildIndex]], tablica_n_v[_vector[_vector.size() - 1].numer]);
+		//      return;
 		//}
 
 		//int temp3 = tablica[index];
@@ -241,66 +415,37 @@ void MinHeap::BubbleDown(int index)
 		//_vector[index] = _vector[minIndex];
 		//tablica[index] = _vector[minIndex].numer;
 		//tablica_n_v[_vector[index].numer] = minIndex;
-		swap(_vector[index],_vector[minIndex]);
-		swap(tablica[index], tablica[minIndex]);
-		swap(tablica_n_v[tablica[index]], tablica_n_v[tablica[minIndex]]);
+		swap(_vector[index], _vector[parentIndex]);
+		swap(tablica[index], tablica[parentIndex]);
+		swap(tablica_n_v[tablica[index]], tablica_n_v[tablica[parentIndex]]);
 		//cout << "X" << endl;
 
 		//_vector[minIndex] = temp;
 		//tablica[minIndex] = temp3;
 		//tablica_n_v[minIndex] = index;
 		//tablica_n_v[_vector[minIndex].numer] = index;
-		BubbleDown(minIndex);
-	}
-}
-
-void MinHeap::BubbleUp(int index)
-{
-	if (index == 0)
-		return;
-	if (_vector[index].masa > _vector[max_id].masa) {
-	//	max_id = index;
-	}
-	int parentIndex = (index -1) / 2;
-	int leftChildIndex = 2*index ;
-	int rightChildIndex = 2* index + 1;
-	if (leftChildIndex > _vector.size()) {
-		return; //index is a leaf
-	}
-	if (_vector[parentIndex] > _vector[index]|| _vector[leftChildIndex] > _vector[index] || (rightChildIndex < _vector.size()) && _vector[rightChildIndex] > _vector[index])
-	{
-		elewator temp = _vector[parentIndex];
-		int temp3 = tablica[index];
-		int temp2 = index;
-
-		tablica[index] = _vector[parentIndex].numer;
-		_vector[parentIndex] = _vector[index];
-		tablica_n_v[index] = parentIndex;
-
-
-		_vector[index] = temp;
-		tablica[parentIndex] = temp3;
-		tablica_n_v[parentIndex] = index;
-
-
 		BubbleUp(parentIndex);
 	}
 }
 
 void MinHeap::Insert(int index, int masa)
 {
-	int length = _vector.size()-1;
+	int length = _vector.size() - 1;
 
 	//cout << endl << "AA" << endl << tablica[index] << endl;
 
 	_vector[index].masa += masa;
+
+
 	if (_vector[index].masa < 0) {
 		_vector[index].masa = 0;
-		BubbleDown(index);
-		return;
+	}
+	if (_vector[index].masa > _vector[max_id].masa) {
+		max_id = tablica[index];
+		max_masa = _vector[tablica[index]].masa;
 	}
 	BubbleDown(index);
-	
+
 	//BubbleDown(tablica[index]);
 	//Heapify();
 }
@@ -308,41 +453,32 @@ void MinHeap::Insert(int index, int masa)
 elewator MinHeap::GetMin()
 {
 	//for(int i = 0;i<_vector.size();i++){
-	return _vector[tablica[0]];
+	return _vector[0];
 }
 
 int MinHeap::GetMinI()
 {
 	//for(int i = 0;i<_vector.size();i++){
-	return tablica[0];
+	return 0;
 }
 
 int MinHeap::GetMaxI()
 {
-	int id = 0;
-	return max_id;
-	elewator max = _vector[0];
-	for (size_t i = 0; i < _vector.size(); i++)
-	{
-		if (_vector[i] > max) {
-			max = _vector[i];
-			id = i;
-		}
-	}
-	return id;
+	//int id = 0;
+	return tablica[max_id];
 }
 
 elewator MinHeap::GetMax()
 {
-	elewator max = _vector[0];
+	//elewator max = _vector[0];
 	return _vector[max_id];
-	for (size_t i = 0; i < _vector.size(); i++)
+	/*for (size_t i = 0; i < _vector.size(); i++)
 	{
 		if (_vector[i].masa > max.masa) {
 			max = _vector[i];
 		}
 	}
-	return max;
+	return max;*/
 }
 
 void MinHeap::DeleteMin()
@@ -361,7 +497,7 @@ void MinHeap::DeleteMin()
 }
 
 void MinHeap::nX(int numer, long int masa) {
-	Insert(tablica_n_v[numer], masa);
+	Insert(array_el[numer].posMin, masa);
 }
 void MinHeap::nm(long int masa) {
 	Insert(GetMinI(), masa);
@@ -370,7 +506,7 @@ void MinHeap::nM(long int masa) {
 	Insert(GetMaxI(), masa);
 }
 void MinHeap::r(int numer, long int masa) {
-	Insert(tablica_n_v[numer], -masa);
+	Insert(array_el[numer].posMin, -masa);
 }
 void MinHeap::rm(long int masa) {
 	Insert(GetMinI(), -masa);
@@ -379,7 +515,7 @@ void MinHeap::rM(long int masa) {
 	Insert(GetMaxI(), -masa);
 }
 void MinHeap::w(int numer) {
-	cout << _vector[tablica_n_v[numer]].masa << endl;
+	cout << _vector[array_el[numer].posMin].masa << endl;
 }
 void MinHeap::wm() {
 	cout << _vector[0].masa << endl;
@@ -391,7 +527,7 @@ void MinHeap::wM() {
 
 
 
-int main()
+int masin()
 {
 
 	int n;///liczba elewatorow
@@ -420,7 +556,7 @@ int main()
 	//cout << endl;
 	//for (int i = 0; i < n; i++)
 	//{
-	//	cout << i << ":" << minHeap._vector[i].masa << "\t" << minHeap.tablica[i] << "\t" << minHeap.tablica_n_v[i] << endl;
+	//      cout << i << ":" << minHeap._vector[i].masa << "\t" << minHeap.tablica[i] << "\t" << minHeap.tablica_n_v[i] << endl;
 	//}
 	//cout << endl << endl;
 	//minHeap.Insert(minHeap.GetMaxI(), 5);
@@ -429,7 +565,7 @@ int main()
 	//cout << endl;
 	//for (int i = 0; i < n; i++)
 	//{
-	//	//cout << i << ":" << minHeap._vector[i].masa << "\t" << minHeap.tablica[i] << "\t" << minHeap.tablica_n_v[i] << endl;
+	//      //cout << i << ":" << minHeap._vector[i].masa << "\t" << minHeap.tablica[i] << "\t" << minHeap.tablica_n_v[i] << endl;
 	//}
 
 	for (int ix = 0; ix <= m; ix++) {
@@ -507,12 +643,14 @@ int main()
 				}
 			}
 		}
-
+		for (int i = 0; i < minHeap._vector.size(); i++)
+		{
+		      cout << i << ":" << minHeap._vector[i].masa << "\t" << minHeap.tablica[i] << "\t" << minHeap.tablica_n_v[i] << endl;
+		}
 		//k->elewatory_S = k->elewatory;
 		//k->elewatory_S.erase(k->elewatory_S.begin(), low);
 	}
-	
 
-    return 0;
+
+	return 0;
 }
-
